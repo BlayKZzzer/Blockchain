@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Testing of Blockchain tech.</title>
+    <style>
+      /* Global styles */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+      hr {
+        border: 1px solid #ddd;
+      }
+
+      /* App-specific styles */
+      #blockchain {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Testing of Blockchain tech.</h1>
+    <button onclick="mineBlock()">Mine</button>
+    <hr />
+    <h2>Blockchain</h2>
+    <div id="blockchain"></div>
+
+    <script>
+      const blockchainDiv = document.getElementById("blockchain");
+
+      async function mineBlock() {
+        const response = await fetch("/mine", { method: "POST" });
+        const data = await response.json();
+
+        if (response.status === 200) {
+          alert(data.message);
+          displayBlockchain();
+        } else {
+          alert("Error mining block.");
+        }
+      }
+
+      async function displayBlockchain() {
+        const response = await fetch("/chain");
+        const data = await response.json();
+
+        if (response.status === 200) {
+          blockchainDiv.innerHTML = "";
+          data.forEach((block) => {
+            blockchainDiv.innerHTML += `
+                <div>
+                    <strong>Block #${block.index}</strong><br>
+                    Previous Hash: ${block.previous_hash}<br>
+                    Proof: ${block.proof}<br>
+                    Timestamp: ${block.timestamp}<br>
+                    Transactions:<br>
+                    <ul>
+                        ${block.transactions
+                          .map(
+                            (tx) => `
+                                <li>${tx.sender} -> ${tx.recipient}: ${tx.amount}</li>
+                            `
+                          )
+                          .join("")}
+                    </ul>
+                </div><br>
+            `;
+          });
+        } else {
+          blockchainDiv.innerHTML = "Error loading blockchain.";
+        }
+      }
+
+      window.onload = displayBlockchain;
+    </script>
+  </body>
+</html>
